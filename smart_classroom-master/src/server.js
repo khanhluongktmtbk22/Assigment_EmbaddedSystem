@@ -1,0 +1,54 @@
+import express from "express";
+import exitHook from "async-exit-hook";
+import { MongoClient } from "mongodb";
+import "dotenv/config";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+
+import { router } from "./router.js";
+import { corsOptions } from "./config.js";
+
+export let dataBase = null;
+
+function runServer() {
+  const app = express();
+
+  app.use(cors(corsOptions));
+  app.use(cookieParser());
+  app.use(
+    express.urlencoded({
+      extended: true,
+    })
+  );
+  app.use(express.json());
+
+  app.use("/api", router);
+
+  app.listen(process.env.PORT, () => {
+    console.log(
+      `Hi ${process.env.AUTHOR}, server is running http://localhost:${process.env.PORT}`
+    );
+  });
+
+  exitHook(async function () {
+    console.log("Database is closing...");
+    await dataBase.client.close();
+  });
+}
+
+async function connectDB() {
+  const client = new MongoClient(process.env.DB_URL);
+  await client.connect();
+  dataBase = client.db(process.env.DB_NAME);
+  console.log("Database connected");
+}
+
+(async function () {
+  try {
+    await connectDB();
+    runServer();
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+})();
