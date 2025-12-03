@@ -51,4 +51,25 @@ async function register(req, res, next) {
   }
 }
 
-export const validations = { login, register };
+async function wifiConfig(req, res, next) {
+  const schema = Joi.object({
+    ssid: Joi.string().required().min(1).max(32).trim().strict(),
+    password: Joi.string().required().min(8).max(63).trim().strict(),
+  });
+  try {
+    await schema.validateAsync(req.body, { abortEarly: false });
+    next();
+  } catch (err) {
+    let newError = new Error(err);
+    let arrMessage = [];
+    for (let i = 0; i < err.details.length; i++) {
+      arrMessage.push(err.details[i].message);
+    }
+    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+      error: arrMessage,
+      stack: newError.stack,
+    });
+  }
+}
+
+export const validations = { login, register, wifiConfig };

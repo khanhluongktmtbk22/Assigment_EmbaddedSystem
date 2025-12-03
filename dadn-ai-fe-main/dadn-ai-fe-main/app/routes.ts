@@ -6,4 +6,5 @@ export default [
   route("register", "routes/register.tsx"),
   route("dashboard", "routes/dashboard.tsx"),
   route("history", "routes/history.tsx"),
+  route("wifi", "routes/wifi.tsx"),
 ] satisfies RouteConfig;

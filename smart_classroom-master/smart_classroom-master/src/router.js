@@ -19,6 +19,9 @@ router.post("/device/setLevel/:name", controllers.setDeviceLevel);
 router.post("/device/setThreshold/:name", controllers.setDeviceThreshold);
 router.post("/device/resetThreshold/:name", controllers.resetDeviceThreshold);
 
+router.post("/wifi/configure", validations.wifiConfig, controllers.configureWifi);
+router.post("/interval/configure", controllers.configureInterval);
+
 router.get("/stream/sensor", controllers.streamSensor);
 router.get("/stream/status", controllers.streamStatus);
 

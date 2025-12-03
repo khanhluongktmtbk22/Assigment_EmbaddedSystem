@@ -7,7 +7,8 @@ import {
 } from "react-icons/ai";
 import { BiLogOut } from "react-icons/bi";
 import { RiHistoryLine, RiHistoryFill } from "react-icons/ri";
-import { NavLink, useNavigate } from "react-router"; 
+import { AiOutlineWifi } from "react-icons/ai";
+import { NavLink, useNavigate } from "react-router";
 import { useState } from "react";
 
 
@@ -24,7 +25,7 @@ export default function Menu({ className = "" }: MenuProps) {
 
     try {
       const res = await fetch("http://localhost:3000/api/logout", {
-        method: "GET", 
+        method: "GET",
         credentials: "include",
         // headers: { Authorization: `Bearer ${token}` }
       });
@@ -67,6 +68,12 @@ export default function Menu({ className = "" }: MenuProps) {
       linkTo: "/history",
     },
     {
+      Icon: AiOutlineWifi,
+      ActiveIcon: AiOutlineWifi,
+      buttonText: "WiFi",
+      linkTo: "/wifi",
+    },
+    {
       Icon: BiLogOut,
       ActiveIcon: BiLogOut,
       buttonText: "Logout",
@@ -74,57 +81,55 @@ export default function Menu({ className = "" }: MenuProps) {
     },
   ];
 
-return (
-  <div className={`flex flex-col ${className}`}>
-    {menuList.map((item) =>
-      item.buttonText === "Logout" ? (
-        // 🔹 Logout button
-      <button
-        key={item.buttonText}
-        onClick={() => setShowConfirm(true)} // 🔹 Open modal instead of logging out immediately
-        disabled={isLoggingOut}
-        className={`flex items-center gap-4 px-6 py-4 rounded-lg transition-all no-underline 
+  return (
+    <div className={`flex flex-col ${className}`}>
+      {menuList.map((item) =>
+        item.buttonText === "Logout" ? (
+          // 🔹 Logout button
+          <button
+            key={item.buttonText}
+            onClick={() => setShowConfirm(true)} // 🔹 Open modal instead of logging out immediately
+            disabled={isLoggingOut}
+            className={`flex items-center gap-4 px-6 py-4 rounded-lg transition-all no-underline 
           ${isLoggingOut ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-50"}
         `}
-      >
-        <item.Icon className="text-gray-700 w-7 h-7" />
-        <span className="text-xl text-black">
-          {"Logout"}
-        </span>
-      </button>
+          >
+            <item.Icon className="text-gray-700 w-7 h-7" />
+            <span className="text-xl text-black">
+              {"Logout"}
+            </span>
+          </button>
 
-      ) : (
-        // 🔹 Normal navigation buttons
-        <NavLink
-          to={item.linkTo}
-          key={item.buttonText}
-          className={({ isActive }) =>
-            `flex items-center gap-4 px-6 py-4 rounded-lg transition-all no-underline
+        ) : (
+          // 🔹 Normal navigation buttons
+          <NavLink
+            to={item.linkTo}
+            key={item.buttonText}
+            className={({ isActive }) =>
+              `flex items-center gap-4 px-6 py-4 rounded-lg transition-all no-underline
             ${isActive ? "bg-gray-100" : "hover:bg-gray-50"}`
-          }
-        >
-          {({ isActive }) => {
-            const Icon = isActive ? item.ActiveIcon : item.Icon;
-            return (
-              <>
-                <Icon
-                  className={`${
-                    isActive ? "text-black" : "text-gray-700"
-                  } w-7 h-7`}
-                />
-                <span
-                  className={`text-xl ${
-                    isActive ? "font-bold text-black" : "text-black"
-                  }`}
-                >
-                  {item.buttonText}
-                </span>
-              </>
-            );
-          }}
-        </NavLink>
-      )
-    )}
+            }
+          >
+            {({ isActive }) => {
+              const Icon = isActive ? item.ActiveIcon : item.Icon;
+              return (
+                <>
+                  <Icon
+                    className={`${isActive ? "text-black" : "text-gray-700"
+                      } w-7 h-7`}
+                  />
+                  <span
+                    className={`text-xl ${isActive ? "font-bold text-black" : "text-black"
+                      }`}
+                  >
+                    {item.buttonText}
+                  </span>
+                </>
+              );
+            }}
+          </NavLink>
+        )
+      )}
       {showConfirm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-lg p-6 w-80 text-center">
@@ -152,6 +157,6 @@ return (
           </div>
         </div>
       )}
-  </div>
-);
+    </div>
+  );
 }

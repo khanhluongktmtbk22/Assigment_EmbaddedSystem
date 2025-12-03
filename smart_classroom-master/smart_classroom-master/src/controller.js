@@ -151,18 +151,7 @@
 //       trigger: "Manual",
 //     };
 //     dataBase.collection("actionHistory").insertOne(actionHistory);
-
-//     // Send command to gateway
-//     if (device.name === 'fan') {
-//       const value = fan.isActive ? `MANUAL${fan.speed}` : 'MANUAL0';
-//       sendCommandToGateway('FAN', value);
-//     } else if (device.name === 'light') {
-//       const value = light.isActive ? `MANUAL${light.brightness}` : 'MANUAL0';
-//       sendCommandToGateway('LIGHT', value);
-//     }
-
 //     res.status(StatusCodes.OK).json(device);
-
 //   } catch (err) {
 //     const newErr = new Error(err);
 //     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -199,18 +188,7 @@
 //       trigger: "Manual",
 //     };
 //     dataBase.collection("actionHistory").insertOne(actionHistory);
-
-//     // Send command to gateway
-//     if (device.name === 'fan') {
-//       const value = fan.auto ? 'AUTO' : `MANUAL${fan.isActive ? fan.speed : 0}`;
-//       sendCommandToGateway('FAN', value);
-//     } else if (device.name === 'light') {
-//       const value = light.auto ? 'AUTO' : `MANUAL${light.isActive ? light.brightness : 0}`;
-//       sendCommandToGateway('LIGHT', value);
-//     }
-
 //     res.status(StatusCodes.OK).json(device);
-
 //   } catch (err) {
 //     const newErr = new Error(err);
 //     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -252,16 +230,7 @@
 //       trigger: "Manual",
 //     };
 //     dataBase.collection("actionHistory").insertOne(actionHistory);
-
-//     // Send command to gateway
-//     if (device.name === 'fan') {
-//       sendCommandToGateway('FAN', `MANUAL${fan.speed}`);
-//     } else if (device.name === 'light') {
-//       sendCommandToGateway('LIGHT', `MANUAL${light.brightness}`);
-//     }
-
 //     res.status(StatusCodes.OK).json(device);
-
 //   } catch (err) {
 //     const newErr = new Error(err);
 //     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -368,7 +337,7 @@
 
 //   streamSensorResList.add(res);
 
-//   //   const hb = setInterval(() => res.write(": keep-alive\n\n"), 15000);
+//   // const hb = setInterval(() => res.write(": keep-alive\n\n"), 15000);
 
 //   res.on("close", () => {
 //     console.log("Client disconnected from api/stream/sensor");
@@ -455,10 +424,6 @@
 //         trigger: "Auto",
 //       };
 //       dataBase.collection("actionHistory").insertOne(actionHistory);
-
-//       // Send command to gateway
-//       const fanValue = fan.isActive ? `MANUAL${fan.speed}` : 'MANUAL0';
-//       sendCommandToGateway('FAN', fanValue);
 //     }
 //   }
 
@@ -491,10 +456,6 @@
 //         trigger: "Auto",
 //       };
 //       dataBase.collection("actionHistory").insertOne(actionHistory);
-
-//       // Send command to gateway
-//       const lightValue = light.isActive ? `MANUAL${light.brightness}` : 'MANUAL0';
-//       sendCommandToGateway('LIGHT', lightValue);
 //     }
 //   }
 // }
@@ -530,22 +491,6 @@
 //     res.end();
 //   });
 // }
-
-// // Helper function to send command to gateway
-// function sendCommandToGateway(device, value) {
-//   if (commandStreamRes) {
-//     const command = {
-//       device: device,
-//       value: value
-//     };
-//     const data = JSON.stringify(command);
-//     commandStreamRes.write(['event: command', `data: ${data}\n\n`].join('\n'));
-//     console.log(`Sent command to gateway: ${device}:${value}`);
-//   } else {
-//     console.warn('Gateway not connected to commandStream');
-//   }
-// }
-
 
 // async function getStudyDuration(req, res) {
 //   try {
@@ -696,6 +641,90 @@
 //   }
 // }
 
+// async function configureWifi(req, res) {
+//   try {
+//     const { ssid, password } = req.body;
+
+//     // Send WiFi configuration to gateway via command stream
+//     if (commandStreamRes) {
+//       const wifiConfig = {
+//         type: "wifi",
+//         ssid: ssid,
+//         password: password,
+//       };
+//       const data = JSON.stringify(wifiConfig);
+//       commandStreamRes.write([`event: wifi`, `data: ${data}\n\n`].join("\n"));
+//       console.log(`WiFi configuration sent to gateway: SSID=${ssid}`);
+//     } else {
+//       console.warn("No gateway connected to command stream");
+//     }
+
+//     // Log to action history
+//     const actionHistory = {
+//       time: new Date(Date.now() + 7 * 60 * 60 * 1000),
+//       action: `Configure WiFi network: ${ssid}`,
+//       trigger: "Manual",
+//     };
+//     dataBase.collection("actionHistory").insertOne(actionHistory);
+
+//     res.status(StatusCodes.OK).json({
+//       message: "WiFi configuration sent successfully",
+//       ssid: ssid,
+//     });
+//   } catch (err) {
+//     const newErr = new Error(err);
+//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+//       error: err.message,
+//       stack: newErr.stack,
+//     });
+//   }
+// }
+
+// async function configureInterval(req, res) {
+//   try {
+//     const { interval } = req.body;
+
+//     // Validate interval
+//     if (!interval || interval <= 0) {
+//       return res.status(StatusCodes.BAD_REQUEST).json({
+//         error: "Data send interval must be a positive number",
+//       });
+//     }
+
+//     // Send interval configuration to gateway via command stream
+//     if (commandStreamRes) {
+//       const intervalConfig = {
+//         type: "interval",
+//         value: interval,
+//       };
+//       const data = JSON.stringify(intervalConfig);
+//       commandStreamRes.write([`event: interval`, `data: ${data}\n\n`].join("\n"));
+//       console.log(`Data send interval configuration sent to gateway: ${interval} seconds`);
+//     } else {
+//       console.warn("No gateway connected to command stream");
+//     }
+
+//     // Log to action history
+//     const actionHistory = {
+//       time: new Date(Date.now() + 7 * 60 * 60 * 1000),
+//       action: `Configure data send interval: ${interval}s`,
+//       trigger: "Manual",
+//     };
+//     dataBase.collection("actionHistory").insertOne(actionHistory);
+
+//     res.status(StatusCodes.OK).json({
+//       message: "Interval configuration sent successfully",
+//       interval: interval,
+//     });
+//   } catch (err) {
+//     const newErr = new Error(err);
+//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+//       error: err.message,
+//       stack: newErr.stack,
+//     });
+//   }
+// }
+
 // export const controllers = {
 //   login,
 //   register,
@@ -715,6 +744,8 @@
 //   getHumidity,
 //   getLightLevel,
 //   getActionHistory,
+//   configureWifi,
+//   configureInterval,
 // };
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
@@ -1143,7 +1174,7 @@ async function updateSensorData(req, res) {
     let action = "";
     if (
       rdata.TEMP >= fan.tempThreshold ||
-      rdata.HUMI <= fan.humidityThreshold
+      rdata.HUMI >= fan.humidityThreshold
     ) {
       if (!fan.isActive) {
         fanFlag = true;
@@ -1250,6 +1281,7 @@ async function commandStream(req, res) {
 function sendCommandToGateway(device, value) {
   if (commandStreamRes) {
     const command = {
+      type: "command",
       device: device,
       value: value
     };
@@ -1418,8 +1450,8 @@ async function configureWifi(req, res) {
     if (commandStreamRes) {
       const wifiConfig = {
         type: "wifi",
-        ssid: ssid,
-        password: password,
+        device: ssid,
+        value: password,
       };
       const data = JSON.stringify(wifiConfig);
       commandStreamRes.write([`event: wifi`, `data: ${data}\n\n`].join("\n"));
@@ -1463,8 +1495,10 @@ async function configureInterval(req, res) {
     // Send interval configuration to gateway via command stream
     if (commandStreamRes) {
       const intervalConfig = {
-        type: "interval",
+        type: "command",
+        device: "INTERVAL",
         value: interval,
+
       };
       const data = JSON.stringify(intervalConfig);
       commandStreamRes.write([`event: interval`, `data: ${data}\n\n`].join("\n"));
